@@ -1,15 +1,58 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if user.is_authenticated %}
-<h1 class="titile pt-5">Are you sure you want to Delete {{ post.title }}</h1>
-<form method="POST">
-    {% csrf_token %}
+
+
+{{ post.title }} <br />
+By: {{ post.author }} ||
+{{ post.public_date }} <br />
+
+<div class="detail__container">
+    
     <div class="button">
-        <input class="button is-danger" type="submit" value="Confirm" />
-        <a class="button is-primary" href=" {% url 'post_detail' post.pk %}">Cancel</a>
+        <!-- need to work on style bootstrap5 -->
+        <a href="{% url 'post_update' post.pk %}" class="btn btn-primary">
+            <span class="icon">
+                <i class="bi bi-pen"></i>
+            </span>
+            edit
+        </a>
+        <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">
+            <span class="icon">
+                <i class="bi bi-trash"></i>
+            </span>
+            delete
+        </a>
     </div>
-</form>
-{% endif %}
+    
+    <div class="detail__about">
+
+        <p>{{ post.body }}</p>
+        <!-- if you ant to add html to your post but it wouldnt be safe you might get hacked 
+        <p>{{ post.body | safe }}</p> -->
+    </div>
+    <a class="button" href="{% url 'post'  %}">back</a>
+
+
+    <br /><br />
+    <hr>
+    <br />
+
+    <form action="{% url 'post_like' post.pk %}" method="POST">
+        {% csrf_token %}
+        <!-- {% if user.is_authenticated %} -->
+        {% if liked %}
+        <button class="button is-danger is-small  " type="submit" name="post_id" value="{{post.id}}">Unlike</button>
+        {% else %}
+        <button class="button is-info is-small  " type="submit" name="post_id" value="{{post.id}}">Like</button>
+
+        {% endif %}
+        <!-- {% else%} -->
+        <small><a href="{% url 'login' %}">log in </a>to like </small>
+        {% endif %}
+        - {{ total_likes }} likes
+    </form>
+</div>
+
 
 
 {% endblock%}

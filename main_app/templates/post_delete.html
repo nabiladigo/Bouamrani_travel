@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<h1 class="titile pt-5">Are you sure you want to Delete {{ post.title }}</h1>
+<form method="POST">
+    {% csrf_token %}
+    <div class="button">
+        <input class="button is-danger" type="submit" value="Confirm" />
+        <a class="button is-primary" href=" {% url 'post_detail' post.pk %}">Cancel</a>
+    </div>
+</form>
+{% endif %}
+
+
+{% endblock%}

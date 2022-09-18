@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import TemplateView, View
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -7,6 +7,7 @@ from .forms import UserProfileForm
 from django.contrib.auth import login
 from .models import Profile, City,Post, User
 from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 
 # Create your views here.
@@ -40,6 +41,7 @@ class PostList(TemplateView):
 
 
 
+
 class PostDetail(DetailView):
     model= Post
     template_name = "post_detail.html"
@@ -61,6 +63,7 @@ class PostDetail(DetailView):
         return  context
 
 
+
 class PostUpdate(UpdateView):
     model = Post
     fields = ['image','title', 'author', 'body']
@@ -68,7 +71,44 @@ class PostUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse( 'post_detail', kwargs={'pk': self.object.pk})
+
+
+
+class PostCreate(CreateView):
+    model = Post
+    fields =['title', 'author', 'body']
+    template_name = "post_create.html"
+
+    def form_valid(self, form):
+        form.instance.user= self.request.user
+        return super(PostCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        print(self.kwargs)
+        return reverse('post_detail', kwargs={'pk': self.object.pk})
+
+
+
+class PostDelete(DeleteView):
+    model = Post
+    template_name = "post_delete.html"
+    success_url = "/posts/"
+
+
+
+def postlike(request, pk):
+    post= get_object_or_404(Post, id=request.POST.get('post_id'))
+    liked=False
+    if post.likes.filter(id=request.user.id).exists():
+        post.likes.remove(request.user)
+        liked=False
+    else:
+        post.likes.add(request.user)
+        liked= True
+
     
+    # to stay in the same page without the user notice anything
+    return HttpResponseRedirect(reverse('post_detail', args=[str(pk)]))
 
 
 
